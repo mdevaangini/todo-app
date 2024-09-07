@@ -1,0 +1,150 @@
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.todos {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 22px;
+}
+
+.header button {
+  display: flex;
+  align-items: center;
+  border: 1px solid #3554ef;
+  border-radius: 50%;
+  padding: 4px;
+  background-color: #3554ef;
+  color: white;
+  box-shadow: 5px 2px 7px -3px rgba(0, 0, 0, 0.75);
+}
+
+.heading__title {
+  font-weight: bold;
+}
+.heading__date {
+  color: #a2a2a4;
+}
+
+.list {
+  margin-top: 20px;
+}
+
+.list__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #a2a2a4;
+  padding: 8px 4px;
+}
+
+.list__item:last-child {
+  border: none;
+}
+
+.list__item > .list__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+
+.list__marker {
+  border: 1px solid black;
+  border-radius: 50%;
+  height: 12px;
+  width: 12px;
+}
+
+.list__title {
+  font-weight: 500;
+  font-size: 16px;
+}
+.list__timestamp {
+  font-size: 10px;
+  color: #a2a2a4;
+}
+
+.modal {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal__content {
+  background-color: white;
+  min-width: 300px;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid black;
+  filter: drop-shadow(6px 6px 10px #000000);
+  position: relative;
+}
+
+.modal__close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0;
+  height: 22px;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form__input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form__input > label {
+  font-weight: 500;
+}
+
+.form__input > input,
+button {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid black;
+}
+
+.list__marker--checked {
+  background-color: rgb(76, 235, 76);
+}
+
+.completed__heading {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.todo__message {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16p;
+}
