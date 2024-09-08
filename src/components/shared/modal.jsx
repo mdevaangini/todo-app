@@ -11,6 +11,9 @@ export function Modal({ children, open, onClose }) {
     savedOnClose.current = onClose;
   }, [onClose]);
 
+  /**
+   * This effect is responsible for handling escape key
+   */
   useEffect(() => {
     if (!open) return;
     function handleKeyDown(event) {
@@ -22,10 +25,21 @@ export function Modal({ children, open, onClose }) {
     };
   }, [open]);
 
+  /**
+   * This effect is responsible for handling scroll functionality
+   */
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return createPortal(
-    <FocusLock returnFocus={true}>
+    <FocusLock returnFocus>
       <div className="modal">
         <div className="modal__content">
           {children}
