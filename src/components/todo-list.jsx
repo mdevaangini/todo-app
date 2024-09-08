@@ -7,15 +7,12 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
     <ul className="list">
       {list.map((item) => {
         return (
-          <li
-            className="list__item"
-            key={item.id}
-            // tabIndex={0}
-            // onKeyDown={}
-            onClick={() => {
-              handleCheck(item);
-            }}
-          >
+          <li className="list__item" key={item.id}>
+            <button
+              aria-label={item.completed ? "uncheck" : "check"}
+              className="list__btn-wrapper"
+              onClick={() => handleCheck(item)}
+            />
             {item.completed ? (
               <span className="list__marker list__marker--checked"></span>
             ) : (
@@ -30,8 +27,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
             <button
               aria-label="edit"
               className="list__btn"
-              onClick={(event) => {
-                event.stopPropagation();
+              onClick={() => {
                 handleEdit(item);
               }}
             >
@@ -40,8 +36,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
             <button
               aria-label="delete"
               className="list__btn"
-              onClick={(event) => {
-                event.stopPropagation();
+              onClick={() => {
                 handleDelete(item);
               }}
             >

@@ -50,6 +50,7 @@ body {
   gap: 10px;
   border-bottom: 1px solid #a2a2a4;
   padding: 8px 4px;
+  position: relative;
 }
 
 .list__item:last-child {
@@ -155,4 +156,12 @@ button {
   background-color: transparent;
   border: none;
   cursor: pointer;
+  z-index: 1;
+}
+
+.list__btn-wrapper {
+  position: absolute;
+  background: transparent;
+  inset: 0;
+  border: none;
 }
