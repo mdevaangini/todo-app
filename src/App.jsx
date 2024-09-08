@@ -8,6 +8,9 @@ import { TodoList } from "./components/todo-list";
 function App() {
   const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
   const [open, setOpen] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+
+  const editMode = selectedTodo !== null;
 
   const uncompletedTodos = todos.filter((i) => {
     if (i.completed === true) return false;
@@ -21,21 +24,24 @@ function App() {
 
   function onClose() {
     setOpen(false);
+    setSelectedTodo(null);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const input = formData.get("input");
-    addTodo(input);
-    setOpen(false);
+    if (editMode) {
+      const todo = { ...selectedTodo, title: input };
+      updateTodo(todo);
+    } else addTodo(input);
+
+    onClose();
   }
 
   function handleCheck(item) {
     const todo = {
-      title: item.title,
-      id: item.id,
-      timestamp: item.timestamp,
+      ...item,
       completed: item.completed === true ? false : true,
     };
     updateTodo(todo);
@@ -43,6 +49,10 @@ function App() {
 
   function handleDelete(item) {
     deleteTodo(item.id);
+  }
+
+  function handleEdit(item) {
+    setSelectedTodo(item);
   }
 
   return (
@@ -53,7 +63,7 @@ function App() {
           <span className="heading__date">26 feb.</span>
         </h1>
         <button aria-label="add item" onClick={() => setOpen(true)}>
-          <IoIosAdd fontSize={18} />
+          <IoIosAdd fontSize={22} />
         </button>
       </header>
 
@@ -63,6 +73,7 @@ function App() {
         list={uncompletedTodos}
         handleCheck={handleCheck}
         handleDelete={handleDelete}
+        handleEdit={handleEdit}
       />
 
       {completedTodos.length !== 0 && (
@@ -72,17 +83,25 @@ function App() {
             list={completedTodos}
             handleCheck={handleCheck}
             handleDelete={handleDelete}
+            handleEdit={handleEdit}
           />
         </section>
       )}
 
-      <Modal open={open} onClose={onClose}>
+      <Modal open={open || editMode} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="form__input">
-            <label htmlFor="title">Your title</label>
-            <input id="title" name="input" placeholder="Enter here..." />
+            <label htmlFor="title">
+              Your title {editMode ? "(Update)" : ""}
+            </label>
+            <input
+              id="title"
+              name="input"
+              placeholder="Enter here..."
+              defaultValue={editMode ? selectedTodo.title : ""}
+            />
           </div>
-          <button type="submit">Submit</button>
+          <button type="submit">{editMode ? "Update" : "Submit"}</button>
         </form>
       </Modal>
     </main>
