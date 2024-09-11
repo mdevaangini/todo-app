@@ -17,7 +17,7 @@ export const CustomInput = forwardRef(function CustomInput(
 });
 
 CustomInput.propTypes = {
-  value: PropTypes.object,
+  value: PropTypes.any,
   className: PropTypes.string,
   open: PropTypes.bool,
 };
