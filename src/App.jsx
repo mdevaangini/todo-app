@@ -1,26 +1,31 @@
-import { useState } from "react";
 import "./App.css";
+
+import { useState } from "react";
 import { useTodos } from "./hooks/use-todos";
+import { useKeyboardShortcuts } from "./hooks/use-keyboard-shortcuts";
 import { IoIosAdd } from "react-icons/io";
 import { Modal } from "./components/shared/modal";
 import { TodoList } from "./components/todo-list";
+import { CustomInput } from "./components/custom-input";
+import { format, isToday } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
-  const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
   const [open, setOpen] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const { todos, addTodo, updateTodo, deleteTodo, getDayClassName } = useTodos(
+    format(currentDate, "yyyy-MM-dd")
+  );
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  useKeyboardShortcuts(setOpen);
 
   const editMode = selectedTodo !== null;
 
-  const uncompletedTodos = todos.filter((i) => {
-    if (i.completed === true) return false;
-    else return true;
-  });
+  const uncompletedTodos = todos.filter((i) => !i.completed);
 
-  const completedTodos = todos.filter((i) => {
-    if (i.completed === true) return true;
-    else return false;
-  });
+  const completedTodos = todos.filter((i) => i.completed);
 
   function onClose() {
     setOpen(false);
@@ -59,8 +64,25 @@ function App() {
     <main className="todos">
       <header className="header">
         <h1>
-          <span className="heading__title">Today</span>
-          <span className="heading__date">26 feb.</span>
+          <span className="heading__title">
+            {isToday(currentDate) ? "Today" : "On"}
+          </span>
+          <DatePicker
+            selected={currentDate}
+            onChange={(date) => {
+              setCurrentDate(date);
+            }}
+            customInput={<CustomInput open={datePickerOpen} />}
+            dayClassName={(date) => {
+              return getDayClassName(date);
+            }}
+            onCalendarClose={() => {
+              setDatePickerOpen(false);
+            }}
+            onCalendarOpen={() => {
+              setDatePickerOpen(true);
+            }}
+          />
         </h1>
         <button aria-label="add item" onClick={() => setOpen(true)}>
           <IoIosAdd fontSize={22} />

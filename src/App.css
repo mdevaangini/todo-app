@@ -21,7 +21,7 @@ body {
   font-size: 22px;
 }
 
-.header button {
+.header button[aria-label="add item"] {
   display: flex;
   align-items: center;
   border: 1px solid #3554ef;
@@ -38,6 +38,14 @@ body {
 
 .heading__date {
   color: #a2a2a4;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .list {
@@ -164,4 +172,21 @@ button {
   background: transparent;
   inset: 0;
   border: none;
+}
+
+div.day--completed:not(.react-datepicker__day--selected),
+div.day--completed:hover:not(.react-datepicker__day--selected) {
+  border-radius: 50%;
+  border: 2px solid green;
+}
+
+div.day--uncompleted:not(.react-datepicker__day--selected),
+div.day--uncompleted:hover:not(.react-datepicker__day--selected) {
+  border-radius: 50%;
+  border: 2px solid orange;
+}
+
+div.react-datepicker__day--selected,
+div.react-datepicker__day--selected:hover {
+  border-radius: 50%;
 }

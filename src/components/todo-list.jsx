@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { AiOutlineDelete } from "react-icons/ai";
 import { CiEdit } from "react-icons/ci";
+import { format } from "date-fns";
 
 export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
   return (
@@ -22,7 +23,9 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
               <span className="list__title" key={item.id}>
                 {item.title}
               </span>
-              <span className="list__timestamp">{item.timestamp}</span>
+              <span className="list__timestamp">
+                {format(item.timestamp, "hh:mm aaaa")}
+              </span>
             </div>
             <button
               aria-label="edit"
