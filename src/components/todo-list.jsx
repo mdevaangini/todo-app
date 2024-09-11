@@ -34,7 +34,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
                 handleEdit(item);
               }}
             >
-              <CiEdit />
+              <CiEdit fontSize={20} />
             </button>
             <button
               aria-label="delete"
@@ -43,7 +43,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
                 handleDelete(item);
               }}
             >
-              <AiOutlineDelete />
+              <AiOutlineDelete fontSize={18} />
             </button>
           </li>
         );
