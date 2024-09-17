@@ -3,7 +3,13 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { CiEdit } from "react-icons/ci";
 import { format } from "date-fns";
 
-export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
+export function TodoList({
+  list,
+  handleCheck,
+  handleDelete,
+  handleEdit,
+  date,
+}) {
   return (
     <ul className="list">
       {list.map((item) => {
@@ -12,7 +18,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
             <button
               aria-label={item.completed ? "uncheck" : "check"}
               className="list__btn-wrapper"
-              onClick={() => handleCheck(item)}
+              onClick={() => handleCheck(item, date)}
             />
             {item.completed ? (
               <span className="list__marker list__marker--checked"></span>
@@ -31,7 +37,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
               aria-label="edit"
               className="list__btn"
               onClick={() => {
-                handleEdit(item);
+                handleEdit(item, date);
               }}
             >
               <CiEdit fontSize={20} />
@@ -40,7 +46,7 @@ export function TodoList({ list, handleCheck, handleDelete, handleEdit }) {
               aria-label="delete"
               className="list__btn"
               onClick={() => {
-                handleDelete(item);
+                handleDelete(item, date);
               }}
             >
               <AiOutlineDelete fontSize={18} />
@@ -57,4 +63,5 @@ TodoList.propTypes = {
   handleCheck: PropTypes.func,
   handleDelete: PropTypes.func,
   handleEdit: PropTypes.func,
+  date: PropTypes.string,
 };

@@ -11,10 +11,35 @@ import { format } from "date-fns";
  * [{}],
  * {
  *    '2024-09-09': [{}, {}, {}, {}],
- *    '2024-09-01': [{}, {}, {}, {}],
+//  *    '2024-09-01': [], // currentDate
  *    '2024-08-28': [{}, {}, {}, {}],
  * }
+ *{
+ *
+ * '2024-09-09: [{}, {}, {}, {}]
+ * }
  */
+function getUncompletedTodosByDate(todos, currentDate) {
+  const uncompletedTodosByDate = {};
+  const days = Object.keys(todos);
+
+  days.forEach((day) => {
+    const uncompletedTodos = todos[day].filter((item) => !item.completed);
+    if (uncompletedTodos.length > 0 && currentDate !== day) {
+      uncompletedTodosByDate[day] = uncompletedTodos;
+    }
+  });
+
+  return uncompletedTodosByDate;
+
+  // return days.reduce((acc, day) => {
+  //   const uncompletedTodos = todos[day].filter((item) => !item.completed);
+  //   if (uncompletedTodos.length > 0) {
+  //     acc[day] = uncompletedTodos;
+  //   }
+  //   return acc;
+  // }, {});
+}
 
 export function useTodos(currentDate) {
   const [todos, setTodos] = useState(() => {
@@ -43,10 +68,12 @@ export function useTodos(currentDate) {
     updateSnapshot(updatedTodos);
   };
 
-  const deleteTodo = (id) => {
+  const deleteTodo = (id, date) => {
+    const finalDate = date ?? currentDate;
+
     const updatedTodos = {
       ...todos,
-      [currentDate]: todos[currentDate].filter((item) => {
+      [finalDate]: todos[finalDate].filter((item) => {
         return item.id !== id;
       }),
     };
@@ -54,10 +81,12 @@ export function useTodos(currentDate) {
     updateSnapshot(updatedTodos);
   };
 
-  const updateTodo = (todo) => {
+  const updateTodo = (todo, date) => {
+    const finalDate = date ?? currentDate;
+
     const updatedTodo = {
       ...todos,
-      [currentDate]: todos[currentDate].map((item) => {
+      [finalDate]: todos[finalDate].map((item) => {
         if (item.id === todo.id) return todo;
         else return item;
       }),
@@ -90,5 +119,6 @@ export function useTodos(currentDate) {
     updateTodo,
     deleteTodo,
     getDayClassName,
+    uncompletedTodosByDate: getUncompletedTodosByDate(todos, currentDate),
   };
 }

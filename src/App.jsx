@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useTodos } from "./hooks/use-todos";
 import { useKeyboardShortcuts } from "./hooks/use-keyboard-shortcuts";
 import { IoIosAdd } from "react-icons/io";
@@ -10,26 +10,32 @@ import { CustomInput } from "./components/custom-input";
 import { format, isToday } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import PropTypes from "prop-types";
+import { LiaExternalLinkAltSolid } from "react-icons/lia";
 
 function App() {
   const [open, setOpen] = useState(false);
-  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [selectedTodo, setSelectedTodo] = useState({ todo: null, date: null });
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { todos, addTodo, updateTodo, deleteTodo, getDayClassName } = useTodos(
-    format(currentDate, "yyyy-MM-dd")
-  );
+  const [showPreviousItems, setshowPreviousItems] = useState(false);
+  const {
+    todos,
+    addTodo,
+    updateTodo,
+    deleteTodo,
+    getDayClassName,
+    uncompletedTodosByDate,
+  } = useTodos(format(currentDate, "yyyy-MM-dd"));
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   useKeyboardShortcuts(setOpen);
-
-  const editMode = selectedTodo !== null;
-
+  const editMode = selectedTodo.todo !== null;
   const uncompletedTodos = todos.filter((i) => !i.completed);
 
   const completedTodos = todos.filter((i) => i.completed);
 
   function onClose() {
     setOpen(false);
-    setSelectedTodo(null);
+    setSelectedTodo({ todo: null, date: null });
   }
 
   function handleSubmit(e) {
@@ -37,29 +43,32 @@ function App() {
     const formData = new FormData(e.target);
     const input = formData.get("input");
     if (editMode) {
-      const todo = { ...selectedTodo, title: input };
-      updateTodo(todo);
+      const todo = { ...selectedTodo.todo, title: input };
+      updateTodo(todo, selectedTodo.date);
     } else addTodo(input);
 
     onClose();
   }
 
-  function handleCheck(item) {
+  function handleCheck(item, date) {
     const todo = {
       ...item,
       completed: item.completed === true ? false : true,
     };
-    updateTodo(todo);
+    updateTodo(todo, date);
   }
 
-  function handleDelete(item) {
-    deleteTodo(item.id);
+  function handleDelete(item, date) {
+    deleteTodo(item.id, date);
   }
 
-  function handleEdit(item) {
-    setSelectedTodo(item);
+  function handleEdit(item, date) {
+    setSelectedTodo({ todo: item, date });
   }
 
+  function handleToggle() {
+    setshowPreviousItems(!showPreviousItems);
+  }
   return (
     <main className="todos">
       <header className="header">
@@ -84,9 +93,17 @@ function App() {
             }}
           />
         </h1>
-        <button aria-label="add item" onClick={() => setOpen(true)}>
-          <IoIosAdd fontSize={22} />
-        </button>
+
+        <div className="heading__toolbar">
+          {Object.keys(uncompletedTodosByDate).length !== 0 && (
+            <button onClick={handleToggle} className="heading__toggle-button">
+              {showPreviousItems ? "Hide" : "Show"} More Items
+            </button>
+          )}
+          <button aria-label="add item" onClick={() => setOpen(true)}>
+            <IoIosAdd fontSize={22} />
+          </button>
+        </div>
       </header>
 
       {todos.length === 0 && <p className="todo__message">No Items...</p>}
@@ -110,6 +127,16 @@ function App() {
         </section>
       )}
 
+      {showPreviousItems && (
+        <PreviousUncompletedTodosSection
+          todosByDate={uncompletedTodosByDate}
+          handleCheck={handleCheck}
+          handleDelete={handleDelete}
+          handleEdit={handleEdit}
+          setCurrentDate={setCurrentDate}
+        />
+      )}
+
       <Modal open={open || editMode} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="form__input">
@@ -118,9 +145,10 @@ function App() {
             </label>
             <input
               id="title"
+              required
               name="input"
               placeholder="Enter here..."
-              defaultValue={editMode ? selectedTodo.title : ""}
+              defaultValue={editMode ? selectedTodo.todo.title : ""}
             />
           </div>
           <button type="submit">{editMode ? "Update" : "Submit"}</button>
@@ -131,3 +159,52 @@ function App() {
 }
 
 export default App;
+
+function PreviousUncompletedTodosSection({
+  todosByDate,
+  handleCheck,
+  handleDelete,
+  handleEdit,
+  setCurrentDate,
+}) {
+  const days = Object.keys(todosByDate);
+
+  function handleClick(day) {
+    setCurrentDate(new Date(day));
+  }
+
+  if (days.length == 0) return null;
+
+  return (
+    <section className="uncompleted-section">
+      <h3>Previously Uncompleted Items</h3>
+      {days.map((day) => {
+        return (
+          <Fragment key={day}>
+            <div className="uncompleted-section__heading">
+              <h4>{format(day, "dd MMM")}</h4>
+              <button onClick={() => handleClick(day)}>
+                <LiaExternalLinkAltSolid fontSize={16} />
+              </button>
+            </div>
+            <TodoList
+              list={todosByDate[day]}
+              handleCheck={handleCheck}
+              handleDelete={handleDelete}
+              handleEdit={handleEdit}
+              date={day}
+            />
+          </Fragment>
+        );
+      })}
+    </section>
+  );
+}
+
+PreviousUncompletedTodosSection.propTypes = {
+  todosByDate: PropTypes.object,
+  handleCheck: PropTypes.func,
+  handleDelete: PropTypes.func,
+  handleEdit: PropTypes.func,
+  setCurrentDate: PropTypes.func,
+};

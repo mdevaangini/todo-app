@@ -36,6 +36,21 @@ body {
   font-weight: bold;
 }
 
+.heading__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.heading__toggle-button {
+  background-color: #3554efc7;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
 .heading__date {
   color: #a2a2a4;
   background-color: transparent;
@@ -49,7 +64,7 @@ body {
 }
 
 .list {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .list__item {
@@ -138,7 +153,7 @@ form {
 }
 
 .form__input > input,
-button {
+.form__input + button {
   padding: 6px;
   border-radius: 4px;
   border: 1px solid black;
@@ -189,4 +204,27 @@ div.day--uncompleted:hover:not(.react-datepicker__day--selected) {
 div.react-datepicker__day--selected,
 div.react-datepicker__day--selected:hover {
   border-radius: 50%;
+}
+
+.uncompleted-section h3 {
+  margin-top: 20px;
+  font-size: 14px;
+}
+.uncompleted-section h4 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.uncompleted-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.uncompleted-section__heading > button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
