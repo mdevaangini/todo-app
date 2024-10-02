@@ -12,12 +12,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from "prop-types";
 import { LiaExternalLinkAltSolid } from "react-icons/lia";
+import { useSearchParams } from "react-router-dom";
 
 function App() {
   const [open, setOpen] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState({ todo: null, date: null });
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [showPreviousItems, setshowPreviousItems] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentDate =
+    searchParams.get("day") ?? format(new Date(), "yyyy-MM-dd");
   const {
     todos,
     addTodo,
@@ -25,7 +28,7 @@ function App() {
     deleteTodo,
     getDayClassName,
     uncompletedTodosByDate,
-  } = useTodos(format(currentDate, "yyyy-MM-dd"));
+  } = useTodos(currentDate);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   useKeyboardShortcuts(setOpen);
   const editMode = selectedTodo.todo !== null;
@@ -69,6 +72,7 @@ function App() {
   function handleToggle() {
     setshowPreviousItems(!showPreviousItems);
   }
+
   return (
     <main className="todos">
       <header className="header">
@@ -79,7 +83,9 @@ function App() {
           <DatePicker
             selected={currentDate}
             onChange={(date) => {
-              setCurrentDate(date);
+              const params = new URLSearchParams(searchParams);
+              params.set("day", format(date, "yyyy-MM-dd"));
+              setSearchParams(params);
             }}
             customInput={<CustomInput open={datePickerOpen} />}
             dayClassName={(date) => {
@@ -133,7 +139,6 @@ function App() {
           handleCheck={handleCheck}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
-          setCurrentDate={setCurrentDate}
         />
       )}
 
@@ -165,12 +170,14 @@ function PreviousUncompletedTodosSection({
   handleCheck,
   handleDelete,
   handleEdit,
-  setCurrentDate,
 }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const days = Object.keys(todosByDate);
 
   function handleClick(day) {
-    setCurrentDate(new Date(day));
+    const params = new URLSearchParams(searchParams);
+    params.set("day", day);
+    setSearchParams(params);
   }
 
   if (days.length == 0) return null;
@@ -206,5 +213,4 @@ PreviousUncompletedTodosSection.propTypes = {
   handleCheck: PropTypes.func,
   handleDelete: PropTypes.func,
   handleEdit: PropTypes.func,
-  setCurrentDate: PropTypes.func,
 };
