@@ -12,7 +12,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from "prop-types";
 import { LiaExternalLinkAltSolid } from "react-icons/lia";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "./lib/firebase";
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -30,6 +32,7 @@ function App() {
     uncompletedTodosByDate,
   } = useTodos(currentDate);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const navigate = useNavigate();
   useKeyboardShortcuts(setOpen);
   const editMode = selectedTodo.todo !== null;
   const uncompletedTodos = todos.filter((i) => !i.completed);
@@ -73,6 +76,15 @@ function App() {
     setshowPreviousItems(!showPreviousItems);
   }
 
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      console.log("failed to signout", error);
+    }
+  }
+
   return (
     <main className="todos">
       <header className="header">
@@ -110,6 +122,7 @@ function App() {
             <IoIosAdd fontSize={22} />
           </button>
         </div>
+        <button onClick={handleLogout}>logout</button>
       </header>
 
       {todos.length === 0 && <p className="todo__message">No Items...</p>}
@@ -143,7 +156,7 @@ function App() {
       )}
 
       <Modal open={open || editMode} onClose={onClose}>
-        <form onSubmit={handleSubmit}>
+        <form className="form" onSubmit={handleSubmit}>
           <div className="form__input">
             <label htmlFor="title">
               Your title {editMode ? "(Update)" : ""}
