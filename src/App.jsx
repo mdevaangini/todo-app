@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useTodos } from "./hooks/use-todos";
 import { useKeyboardShortcuts } from "./hooks/use-keyboard-shortcuts";
 import { IoIosAdd } from "react-icons/io";
@@ -12,9 +12,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import PropTypes from "prop-types";
 import { LiaExternalLinkAltSolid } from "react-icons/lia";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "./lib/firebase";
+import { useSearchParams } from "react-router-dom";
+import { auth, db } from "./lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+
+async function fetchTodosForDay(day) {
+  const docRef = doc(db, auth.currentUser.uid, day);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    console.log(docSnap.data());
+  }
+}
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -32,7 +41,6 @@ function App() {
     uncompletedTodosByDate,
   } = useTodos(currentDate);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const navigate = useNavigate();
   useKeyboardShortcuts(setOpen);
   const editMode = selectedTodo.todo !== null;
   const uncompletedTodos = todos.filter((i) => !i.completed);
@@ -44,7 +52,7 @@ function App() {
     setSelectedTodo({ todo: null, date: null });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const input = formData.get("input");
@@ -76,14 +84,18 @@ function App() {
     setshowPreviousItems(!showPreviousItems);
   }
 
-  async function handleLogout() {
-    try {
-      await signOut(auth);
-      navigate("/login");
-    } catch (error) {
-      console.log("failed to signout", error);
-    }
-  }
+  // async function handleLogout() {
+  //   try {
+  //     await signOut(auth);
+  //     navigate("/login");
+  //   } catch (error) {
+  //     console.log("failed to signout", error);
+  //   }
+  // }
+
+  useEffect(() => {
+    fetchTodosForDay(currentDate).then(() => {});
+  }, [currentDate]);
 
   return (
     <main className="todos">
@@ -101,7 +113,8 @@ function App() {
             }}
             customInput={<CustomInput open={datePickerOpen} />}
             dayClassName={(date) => {
-              return getDayClassName(date);
+              const className = getDayClassName(date);
+              return className;
             }}
             onCalendarClose={() => {
               setDatePickerOpen(false);
@@ -122,7 +135,6 @@ function App() {
             <IoIosAdd fontSize={22} />
           </button>
         </div>
-        <button onClick={handleLogout}>logout</button>
       </header>
 
       {todos.length === 0 && <p className="todo__message">No Items...</p>}

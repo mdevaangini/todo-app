@@ -21,7 +21,6 @@ export function LoginPage() {
         password
       );
       console.log(userCredentails);
-      // navigate("/");
     } catch (e) {
       console.log(e);
     }
