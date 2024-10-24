@@ -15,14 +15,30 @@ import { LiaExternalLinkAltSolid } from "react-icons/lia";
 import { useSearchParams } from "react-router-dom";
 import { auth, db } from "./lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { Toast } from "./components/shared/toast";
 
-async function fetchTodosForDay(day) {
+// client (browser, mobiel browser)
+export async function fetchTodosForDay(day) {
   const docRef = doc(db, auth.currentUser.uid, day);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
-    console.log(docSnap.data());
+    return docSnap.data()?.entries ?? [];
   }
+  return [];
+}
+
+// server
+function removeKey(obj, key) {
+  const keys = Object.keys(obj).filter((item) => item !== key);
+
+  const updatedObj = {};
+
+  keys.forEach((key) => {
+    updatedObj[key] = obj[key];
+  });
+
+  return updatedObj;
 }
 
 function App() {
@@ -30,6 +46,12 @@ function App() {
   const [selectedTodo, setSelectedTodo] = useState({ todo: null, date: null });
   const [showPreviousItems, setshowPreviousItems] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  // const [show,setShow] = useS
+  const [toast, setToast] = useState({
+    message: null,
+    status: null,
+  });
+  const show = toast.message && toast.status ? true : false;
   const currentDate =
     searchParams.get("day") ?? format(new Date(), "yyyy-MM-dd");
   const {
@@ -38,14 +60,31 @@ function App() {
     updateTodo,
     deleteTodo,
     getDayClassName,
-    uncompletedTodosByDate,
+    uncompletedTodosByDate: _uncompletedTodosByDate,
   } = useTodos(currentDate);
+  const uncompletedTodosByDate = removeKey(
+    _uncompletedTodosByDate,
+    currentDate
+  );
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   useKeyboardShortcuts(setOpen);
   const editMode = selectedTodo.todo !== null;
   const uncompletedTodos = todos.filter((i) => !i.completed);
 
   const completedTodos = todos.filter((i) => i.completed);
+
+  useEffect(() => {
+    if (!toast.message || !toast.status) return;
+
+    const timer = setTimeout(() => {
+      setToast({
+        message: null,
+        status: null,
+      });
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [toast.message, toast.status]);
 
   function onClose() {
     setOpen(false);
@@ -131,7 +170,16 @@ function App() {
               {showPreviousItems ? "Hide" : "Show"} More Items
             </button>
           )}
-          <button aria-label="add item" onClick={() => setOpen(true)}>
+          <button
+            aria-label="add item"
+            onClick={() => {
+              setOpen(true);
+              setToast({
+                message: "Bye",
+                status: "success",
+              });
+            }}
+          >
             <IoIosAdd fontSize={22} />
           </button>
         </div>
@@ -184,6 +232,7 @@ function App() {
           <button type="submit">{editMode ? "Update" : "Submit"}</button>
         </form>
       </Modal>
+      {show ? <Toast /> : null}
     </main>
   );
 }
@@ -197,7 +246,9 @@ function PreviousUncompletedTodosSection({
   handleEdit,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const days = Object.keys(todosByDate);
+  const days = Object.keys(todosByDate).filter(
+    (key) => todosByDate[key].length > 0
+  );
 
   function handleClick(day) {
     const params = new URLSearchParams(searchParams);
@@ -206,11 +257,14 @@ function PreviousUncompletedTodosSection({
   }
 
   if (days.length == 0) return null;
+  console.log("days", days);
 
   return (
     <section className="uncompleted-section">
       <h3>Previously Uncompleted Items</h3>
       {days.map((day) => {
+        if (Number(todosByDate[day].length) === 0) return null;
+
         return (
           <Fragment key={day}>
             <div className="uncompleted-section__heading">
