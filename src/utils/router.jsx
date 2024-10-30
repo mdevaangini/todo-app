@@ -41,7 +41,9 @@ function AuthMiddleware({ auth }) {
 
   if (loading) return null;
 
-  if (auth === "allow-with-auth" && !user) return <Navigate to="/login" />; // example, home-page etc
-  if (auth === "allow-without-auth" && user) return <Navigate to="/" />; // example, signup,login etc
+  if (auth === "allow-with-auth" && !user?.emailVerified)
+    return <Navigate to="/login" />; // example, home-page etc
+  if (auth === "allow-without-auth" && user?.emailVerified)
+    return <Navigate to="/" />; // example, signup,login etc
   return <Outlet />;
 }

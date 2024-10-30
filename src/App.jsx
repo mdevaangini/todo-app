@@ -15,7 +15,6 @@ import { LiaExternalLinkAltSolid } from "react-icons/lia";
 import { useSearchParams } from "react-router-dom";
 import { auth, db } from "./lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { Toast } from "./components/shared/toast";
 
 // client (browser, mobiel browser)
 export async function fetchTodosForDay(day) {
@@ -46,12 +45,7 @@ function App() {
   const [selectedTodo, setSelectedTodo] = useState({ todo: null, date: null });
   const [showPreviousItems, setshowPreviousItems] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  // const [show,setShow] = useS
-  const [toast, setToast] = useState({
-    message: null,
-    status: null,
-  });
-  const show = toast.message && toast.status ? true : false;
+
   const currentDate =
     searchParams.get("day") ?? format(new Date(), "yyyy-MM-dd");
   const {
@@ -70,21 +64,7 @@ function App() {
   useKeyboardShortcuts(setOpen);
   const editMode = selectedTodo.todo !== null;
   const uncompletedTodos = todos.filter((i) => !i.completed);
-
   const completedTodos = todos.filter((i) => i.completed);
-
-  useEffect(() => {
-    if (!toast.message || !toast.status) return;
-
-    const timer = setTimeout(() => {
-      setToast({
-        message: null,
-        status: null,
-      });
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [toast.message, toast.status]);
 
   function onClose() {
     setOpen(false);
@@ -174,10 +154,6 @@ function App() {
             aria-label="add item"
             onClick={() => {
               setOpen(true);
-              setToast({
-                message: "Bye",
-                status: "success",
-              });
             }}
           >
             <IoIosAdd fontSize={22} />
@@ -232,7 +208,6 @@ function App() {
           <button type="submit">{editMode ? "Update" : "Submit"}</button>
         </form>
       </Modal>
-      {show ? <Toast /> : null}
     </main>
   );
 }

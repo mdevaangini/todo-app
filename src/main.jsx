@@ -5,6 +5,7 @@ import { router } from "./utils/router";
 
 import "./index.css";
 import "non.geist";
+import { ToastProvider } from "./components/shared/toast-provider";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -14,8 +15,8 @@ createRoot(document.getElementById("root")).render(
 
 function App() {
   return (
-    <>
+    <ToastProvider>
       <RouterProvider router={router} />
-    </>
+    </ToastProvider>
   );
 }

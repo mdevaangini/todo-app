@@ -1,15 +1,20 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { auth } from "../../lib/firebase";
 import styles from "./auth.module.css";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendEmailVerification,
+} from "firebase/auth";
 import { validationSuccess } from "../../utils/auth";
 import { ImSpinner2 } from "react-icons/im";
+import { useToast } from "../../components/shared/toast-provider";
 
 export function SignUpPage() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const showToast = useToast();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -40,8 +45,14 @@ export function SignUpPage() {
         displayName: name,
       });
 
+      await sendEmailVerification(userCredentails.user, {
+        url: window.location.origin + "/login",
+      });
+      showToast({
+        message: "Verification email sent successfully!",
+        status: "success",
+      });
       setLoading(false);
-      navigate("/login");
     } catch (e) {
       setLoading(false);
       console.log(e);

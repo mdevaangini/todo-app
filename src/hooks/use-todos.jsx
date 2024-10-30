@@ -11,12 +11,14 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { fetchTodosForDay } from "../App";
+import { useToast } from "../components/shared/toast-provider";
 
 export function useTodos(currentDate) {
   const [todos, setTodos] = useState([]);
   const [todoStatus, setTodoStatus] = useState({});
   const [uncompletedTodos, setUncompletedTodos] = useState({});
 
+  const showToast = useToast();
   useEffect(() => {
     const collectionRef = collection(db, auth.currentUser.uid);
 
@@ -67,40 +69,54 @@ export function useTodos(currentDate) {
     );
   };
 
-  const deleteTodo = (id, date) => {
-    const finalDate = date ?? currentDate;
-    const finalTodos = todos.filter((item) => {
-      return item.id !== id;
-    });
-    const targetTodo = todos.find((item) => {
-      return item.id === id;
-    });
-    setTodos(finalTodos);
+  const deleteTodo = async (id, date) => {
+    try {
+      const finalDate = date ?? currentDate;
+      const finalTodos = todos.filter((item) => {
+        return item.id !== id;
+      });
+      const targetTodo = todos.find((item) => {
+        return item.id === id;
+      });
+      setTodos(finalTodos);
 
-    setDoc(
-      doc(db, auth.currentUser.uid, finalDate),
-      { entries: arrayRemove(targetTodo) },
-      { merge: true }
-    );
+      await setDoc(
+        doc(db, auth.currentUser.uid, finalDate),
+        { entries: arrayRemove(targetTodo) },
+        { merge: true }
+      );
+      showToast({ message: "Item Deleted Successfully!", status: "success" });
+    } catch (error) {
+      const defaultMessage = "Failed to delete item";
+      const message = error.message ?? defaultMessage;
+      showToast({ message, status: "error" });
+    }
   };
 
   const updateTodo = async (todo, date) => {
-    const finalDate = date ?? currentDate;
+    try {
+      const finalDate = date ?? currentDate;
 
-    if (date === currentDate) {
-      const updatedTodo = todos.map((item) => {
-        if (item.id === todo.id) return todo;
-        else return item;
-      });
-      setTodos(updatedTodo);
-      await updateTodosSideEffect(updatedTodo, finalDate);
-    } else {
-      const targetTodos = await fetchTodosForDay(finalDate);
-      const updatedTodo = targetTodos.map((item) => {
-        if (item.id === todo.id) return todo;
-        return item;
-      });
-      await updateTodosSideEffect(updatedTodo, finalDate);
+      if (date === currentDate) {
+        const updatedTodo = todos.map((item) => {
+          if (item.id === todo.id) return todo;
+          else return item;
+        });
+        setTodos(updatedTodo);
+        await updateTodosSideEffect(updatedTodo, finalDate);
+      } else {
+        const targetTodos = await fetchTodosForDay(finalDate);
+        const updatedTodo = targetTodos.map((item) => {
+          if (item.id === todo.id) return todo;
+          return item;
+        });
+        await updateTodosSideEffect(updatedTodo, finalDate);
+      }
+      showToast({ message: "Item Updated Successfully!", status: "success" });
+    } catch (error) {
+      const defaultMessage = "Failed to update item";
+      const message = error.message ?? defaultMessage;
+      showToast({ message, status: "error" });
     }
   };
 

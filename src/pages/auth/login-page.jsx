@@ -1,12 +1,17 @@
 import styles from "./auth.module.css";
 import { Link } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { useState } from "react";
 import { ImSpinner2 } from "react-icons/im";
+import { useToast } from "../../components/shared/toast-provider";
 
 export function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const showToast = useToast();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -21,6 +26,12 @@ export function LoginPage() {
         password
       );
       console.log(userCredentails);
+      if (!userCredentails.user.emailVerified) {
+        await sendEmailVerification(userCredentails.user, {
+          url: window.location.origin + "/login",
+        });
+        showToast({ message: "Please verify your email!", status: "error" });
+      }
     } catch (e) {
       console.log(e);
     }
